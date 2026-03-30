@@ -1,24 +1,32 @@
-- name: Push to Hugging Face Hub
-  env:
-    HF_TOKEN: ${{ secrets.HF_TOKEN }}
-    HF_USERNAME: xplorers
-    SPACE_NAME: MIS_API
-  run: |
-    set -euo pipefail
+name: Deploy to Hugging Face
 
-   - name: Push to Hugging Face Hub
-  env:
-    HF_TOKEN: ${{ secrets.HF_TOKEN }}
-    HF_USERNAME: xplorers
-    SPACE_NAME: MIS_API
-  run: |
-    set -euo pipefail
+on:
+  push:
+    branches:
+      - main
 
-    # Strip possible CR/LF just in case the secret was pasted with a trailing newline
-    HF_TOKEN="$(printf '%s' "$HF_TOKEN" | tr -d '\r\n')"
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    git remote remove hf 2>/dev/null || remote="https://huggingface.co/spaces/${HF_USERNAME}/${SPACE_NAME}"
+      - name: Push to Hugging Face Hub
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_USERNAME: xplorers
+          SPACE_NAME: MIS_API
+        run: |
+          set -euo pipefail
 
-    # Use the token via HTTP header (no URL parsing issues)
-    git -c http.extraheader="Authorization: Bearer ${HF_TOKEN}" \
-      push --force "${remote}" HEAD:main
+          # Strip possible CR/LF just in case the secret was pasted with a trailing newline
+          HF_TOKEN="$(printf '%s' "$HF_TOKEN" | tr -d '\r\n')"
+
+          remote="https://huggingface.co/spaces/${HF_USERNAME}/${SPACE_NAME}"
+
+          # Use the token via HTTP header (no URL parsing issues)
+          git -c http.extraheader="Authorization: Bearer ${HF_TOKEN}" \
+            push --force "${remote}" HEAD:main
