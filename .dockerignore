@@ -1,0 +1,28 @@
+# Python specific
+__pycache__
+*.pyc
+*.pyo
+.venv
+venv
+env
+
+# Development & build files
+dist
+build
+*.tmp
+*.bak
+logs
+*.log
+
+# Version control
+.git
+.gitignore
+
+# IDE/Editor specific
+.vscode
+.idea
+*.swp
+
+# OS specific
+.DS_Store
+.dockerignore
