@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from services import predictor
 from contextlib import asynccontextmanager
 
@@ -38,3 +38,33 @@ async def root():
         "status": "ok",
         "message": "Welcome to the Motor Impairment Score API"
     }
+
+
+
+@app.post("/predict/wave")
+async def predict_wave_endpoint(file: UploadFile = File(...)):
+    
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Invalid file type. Please upload an image.")
+    
+    try:
+        image_bytes = await file.read()
+        result = predictor.predict_wave(image_bytes)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
+@app.post("/predict/spiral")
+async def predict_spiral_endpoint(file: UploadFile = File(...)):
+    
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Invalid file type. Please upload an image.")
+    
+    try:
+        image_bytes = await file.read()
+        result = predictor.predict_spiral(image_bytes)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
