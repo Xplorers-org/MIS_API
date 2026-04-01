@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from services import predictor
 from contextlib import asynccontextmanager
 
@@ -30,6 +31,15 @@ app = FastAPI(
     title="Motor Impairment Score API",
     description="API for predicting Parkinson's motor impairment from drawings.",
     lifespan=lifespan
+)
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allow all headers
 )
 
 @app.get("/")

@@ -1,4 +1,4 @@
-name: Deploy to Hugging Face
+name: Deploy to Hugging Face Spaces
 
 on:
   push:
@@ -14,19 +14,33 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Push to Hugging Face Hub
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Push to Hugging Face Spaces
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_USERNAME: xplorers
-          SPACE_NAME: MIS_API
         run: |
+          # Fail immediately on any error
           set -euo pipefail
 
-          # Strip possible CR/LF just in case the secret was pasted with a trailing newline
-          HF_TOKEN="$(printf '%s' "$HF_TOKEN" | tr -d '\r\n')"
+          # Validate token exists
+          if [ -z "$HF_TOKEN" ]; then
+            echo "❌ Error: HF_TOKEN secret is not set!"
+            exit 1
+          fi
 
-          remote="https://huggingface.co/spaces/${HF_USERNAME}/${SPACE_NAME}"
+          # Remove any trailing whitespace from token
+          HF_TOKEN="$(echo "$HF_TOKEN" | xargs)"
 
-          # Use the token via HTTP header (no URL parsing issues)
-          git -c http.extraheader="Authorization: Bearer ${HF_TOKEN}" \
-            push --force "${remote}" HEAD:main
+          # Add Hugging Face remote with embedded token (URL encoded)
+          HF_REMOTE="https://huggingface_user:${HF_TOKEN}@huggingface.co/spaces/xplorers/MIS_API"
+          git remote add hf "$HF_REMOTE" || git remote set-url hf "$HF_REMOTE"
+
+          # Push to Hugging Face main branch
+          echo "🚀 Pushing to Hugging Face Spaces..."
+          git push -u hf main --force
+
+          echo "✅ Successfully deployed to Hugging Face Spaces!"
