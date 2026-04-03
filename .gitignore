@@ -3,7 +3,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
-.env
 env/
 venv/
 env3.*/
@@ -27,10 +26,11 @@ coverage/
 
 # IDE specific files
 .idea/
-.vscode/
 *.swp
 *~
 
 # OS generated files
 .DS_Store
 Thumbs.db
+config.bat
+node_modules
